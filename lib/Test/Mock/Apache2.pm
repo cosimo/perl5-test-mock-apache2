@@ -3,7 +3,7 @@ package Test::Mock::Apache2;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Test::MockObject;
 
@@ -56,9 +56,9 @@ sub import {
     #arn "Init mocked objects...\n";
     init_mocked_objects();
 
+    # XXX Apache2::Cookie
     my @modules_to_fake = qw(
         Apache2::Request
-        Apache2::Cookie
         Apache2::SubRequest
         Apache2::URI
     );

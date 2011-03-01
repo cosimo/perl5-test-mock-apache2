@@ -1,7 +1,7 @@
 
 
 This archive contains the distribution Test-Mock-Apache2,
-version 0.01:
+version 0.02:
 
   Mock mod_perl2 objects when running outside of Apache
 
