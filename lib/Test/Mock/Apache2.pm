@@ -52,9 +52,10 @@ our $APR_THROW_EXCEPTION = 0xDEADBEEF;
 }
 
 sub import {
+    my( $package, $config ) = @_;
 
     #arn "Init mocked objects...\n";
-    init_mocked_objects();
+    init_mocked_objects($config);
 
     # XXX Apache2::Cookie
     my @modules_to_fake = qw(
@@ -74,10 +75,13 @@ Return a mock L<Apache2::RequestRec> B<empty> object.
 =cut
 
 sub ap2_request {
+    my $config = shift;
     my $r = Test::MockObject->new();
     $r->fake_module('Apache2::RequestRec',
         hostname => sub {},
+        dir_config => sub { $config->{ $_[1] } },
     );
+    $r->set_isa('Apache2::RequestUtil');
     bless $r, 'Apache2::RequestRec';
     return $r;
 }
@@ -123,10 +127,15 @@ Uses L</ap2_request>.
 =cut
 
 sub ap2_requestutil {
+    my $config = shift;
     my $ap2_ru = Test::MockObject->new();
     $ap2_ru->fake_module('Apache2::RequestUtil',
-        request => \&ap2_request,
+        request => sub { ap2_request($config) },
+        dir_config => sub { $config->{ $_[1] } },
     );
+    $ap2_ru->fake_new('Apache2::RequestUtil');
+    bless $ap2_ru, 'Apache2::RequestUtil';
+    return $ap2_ru;
 }
 
 =method init_mocked_objects
@@ -137,10 +146,11 @@ for the various C<Apache2::*> classes.
 =cut
 
 sub init_mocked_objects {
+    my $config = shift || {};
 
-    $AP2_REQ = ap2_request();
+    $AP2_REQ = ap2_request($config);
     $APR_REQ_AP2 = apr_request_ap2();
-    $AP2_REQ_UTIL = ap2_requestutil();
+    $AP2_REQ_UTIL = ap2_requestutil($config);
 
 }
 
