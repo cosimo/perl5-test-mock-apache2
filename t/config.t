@@ -23,7 +23,7 @@ is($r->dir_config("SomeConfig"), 42, "SomeConfig is 42");
 is($r->dir_config("OtherConfig"), 'foo', "OtherConfig is 'foo'");
 
 # $r->server->server_hostname
-my $s = $u->server();
+my $s = $r->server();
 ok($s, 'Apache2::RequestUtil->server() returns something');
 isa_ok($s, 'Apache2::ServerRec');
 ok($s->server_hostname, "server_hostname (ServerName) exists");

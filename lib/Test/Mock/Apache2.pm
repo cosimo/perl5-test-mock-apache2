@@ -103,7 +103,7 @@ sub ap2_server {
 =method ap2_request
 
 Return a mock L<Apache2::RequestRec> B<empty> object, with the following
-methods: C<hostname>, C<dir_config>.
+methods: C<hostname>, C<dir_config>, C<server>.
 
 =cut
 
@@ -111,7 +111,8 @@ sub ap2_request {
     my $config = shift;
     my $r = Test::MockObject->new();
     $r->fake_module('Apache2::RequestRec',
-        hostname => sub {},
+        hostname   => sub {},
+        server     => sub { ap2_server($config) },
         dir_config => sub { $config->{ $_[1] } },
     );
     bless $r, 'Apache2::RequestRec';
@@ -165,7 +166,6 @@ sub ap2_requestutil {
     my $ap2_ru = Test::MockObject->new();
     $ap2_ru->fake_module('Apache2::RequestUtil',
         request    => sub { ap2_request($config) },
-        server     => sub { ap2_server($config) },
         dir_config => sub { $config->{ $_[1] } },
     );
     $ap2_ru->fake_new('Apache2::RequestUtil');
