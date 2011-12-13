@@ -3,7 +3,7 @@ package Test::Mock::Apache2;
 use strict;
 use warnings;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use Test::MockObject;
 
@@ -76,10 +76,34 @@ sub import {
     Test::MockObject->fake_module($_) for @modules_to_fake;
 }
 
+=method ap2_server
+
+Return a mock L<Apache2::ServerRec> B<empty> object, with the following
+methods: C<server_hostname>.
+
+To set the hostname, set a C<server_hostname> key in the configuration
+block when using the module.
+
+  use Test::Mock::Apache2 { server_hostname => 'localhost.localdomain' };
+
+Default C<server_hostname> is C<localhost>.
+
+=cut
+
+sub ap2_server {
+    my $config = shift;
+    my $r = Test::MockObject->new();
+    $r->fake_module('Apache2::ServerRec',
+        server_hostname => sub { $config->{server_hostname} || 'localhost' },
+    );
+    bless $r, 'Apache2::ServerRec';
+    return $r;
+}
+
 =method ap2_request
 
 Return a mock L<Apache2::RequestRec> B<empty> object, with the following
-methods: C<hostname>, C<dir_config>.
+methods: C<hostname>, C<dir_config>, C<server>.
 
 =cut
 
@@ -87,7 +111,8 @@ sub ap2_request {
     my $config = shift;
     my $r = Test::MockObject->new();
     $r->fake_module('Apache2::RequestRec',
-        hostname => sub {},
+        hostname   => sub {},
+        server     => sub { ap2_server($config) },
         dir_config => sub { $config->{ $_[1] } },
     );
     bless $r, 'Apache2::RequestRec';
@@ -140,7 +165,7 @@ sub ap2_requestutil {
     my $config = shift;
     my $ap2_ru = Test::MockObject->new();
     $ap2_ru->fake_module('Apache2::RequestUtil',
-        request => sub { ap2_request($config) },
+        request    => sub { ap2_request($config) },
         dir_config => sub { $config->{ $_[1] } },
     );
     $ap2_ru->fake_new('Apache2::RequestUtil');
