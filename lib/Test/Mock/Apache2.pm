@@ -46,6 +46,7 @@ our $APR_THROW_EXCEPTION = 0xDEADBEEF;
 {
 
     my $COOKIE_JAR = {};
+    my $PARAMS = {};
 
     sub cookie_jar {
         my $self = shift;
@@ -56,6 +57,16 @@ our $APR_THROW_EXCEPTION = 0xDEADBEEF;
 
         return $COOKIE_JAR;
     }
+
+sub params {
+    my $self = shift;
+
+    if (@_) {
+	$PARAMS = shift;
+    }
+    
+    return $PARAMS;
+}
 
 }
 
@@ -122,7 +133,7 @@ sub ap2_request {
 =method ap2_request_ap2
 
 Return a mock L<APR::Request::Apache2> B<empty> object with the
-following methods: C<new>, C<jar>, C<handle>.
+following methods: C<new>, C<jar>, C<param>, C<handle>.
 
 =cut
 
@@ -141,6 +152,10 @@ sub apr_request_ap2 {
             }
             bless $jar, "APR::Request::Cookie::Table";
         },
+        param => sub {
+	    my $params = Test::Mock::Apache2->params();
+	    bless $params, "APR::Request::Cookie::Table";
+	},
         handle => \&apr_request_ap2,
     );
     $r->fake_new('APR::Request::Apache2');
