@@ -126,6 +126,8 @@ sub ap2_request {
         hostname   => sub {},
         server     => sub { ap2_server($config) },
         dir_config => sub { $config->{ $_[1] } },
+        content_type => sub { },
+        uri        => sub { ""; },
     );
     bless $r, 'Apache2::RequestRec';
     return $r;
