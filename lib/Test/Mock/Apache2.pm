@@ -106,6 +106,7 @@ sub ap2_server {
     my $r = Test::MockObject->new();
     $r->fake_module('Apache2::ServerRec',
         server_hostname => sub { $config->{server_hostname} || 'localhost' },
+        log_error => sub { print $_[0] . "\n"; },
     );
     bless $r, 'Apache2::ServerRec';
     return $r;
