@@ -157,7 +157,7 @@ sub apr_request_ap2 {
         },
         param => sub {
 	    my $params = Test::Mock::Apache2->params();
-	    bless $params, "APR::Request::Cookie::Table";
+	    bless $params, "APR::Request::Param::Table";
 	},
         handle => \&apr_request_ap2,
     );
